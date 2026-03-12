@@ -7,7 +7,9 @@
 // ─── NAVBAR SCROLL EFFECT ───
 const navbar = document.getElementById('navbar');
 const onScroll = () => {
-  navbar.classList.toggle('scrolled', window.scrollY > 30);
+  if (navbar) {
+    navbar.classList.toggle('scrolled', window.scrollY > 30);
+  }
 };
 window.addEventListener('scroll', onScroll, { passive: true });
 onScroll();
@@ -17,10 +19,10 @@ const hamburger = document.querySelector('.hamburger');
 const mobileMenu = document.querySelector('.mobile-menu');
 
 hamburger?.addEventListener('click', () => {
+  if (!mobileMenu) return;
   mobileMenu.classList.toggle('open');
   const isOpen = mobileMenu.classList.contains('open');
   hamburger.setAttribute('aria-expanded', isOpen);
-  // Animate bars
   const bars = hamburger.querySelectorAll('span');
   if (isOpen) {
     bars[0].style.transform = 'rotate(45deg) translate(4px, 5px)';
@@ -37,10 +39,12 @@ hamburger?.addEventListener('click', () => {
 mobileMenu?.querySelectorAll('a').forEach(link => {
   link.addEventListener('click', () => {
     mobileMenu.classList.remove('open');
-    const bars = hamburger.querySelectorAll('span');
-    bars[0].style.transform = '';
-    bars[1].style.opacity = '';
-    bars[2].style.transform = '';
+    const bars = hamburger?.querySelectorAll('span');
+    if (bars) {
+      bars[0].style.transform = '';
+      bars[1].style.opacity = '';
+      bars[2].style.transform = '';
+    }
   });
 });
 
@@ -65,46 +69,10 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     const target = document.querySelector(href);
     if (!target) return;
     e.preventDefault();
-    const navH = navbar.offsetHeight;
+    const navH = navbar?.offsetHeight || 0;
     const top = target.getBoundingClientRect().top + window.scrollY - navH - 12;
     window.scrollTo({ top, behavior: 'smooth' });
   });
-});
-
-// ─── CONTACT FORM ───
-const form = document.getElementById('contactForm');
-const successMsg = document.getElementById('formSuccess');
-
-form?.addEventListener('submit', e => {
-  e.preventDefault();
-  const name = form.name.value.trim();
-  const email = form.email.value.trim();
-  const message = form.message.value.trim();
-
-  if (!name || !email || !message) {
-    successMsg.style.color = '#c0392b';
-    successMsg.textContent = 'Please fill in all fields.';
-    return;
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    successMsg.style.color = '#c0392b';
-    successMsg.textContent = 'Please enter a valid email address.';
-    return;
-  }
-
-  // Simulate send
-  const btn = form.querySelector('button[type="submit"]');
-  btn.disabled = true;
-  btn.querySelector('span').textContent = 'Sending…';
-
-  setTimeout(() => {
-    form.reset();
-    btn.disabled = false;
-    btn.querySelector('span').textContent = 'Send Message';
-    successMsg.style.color = '#2d7a4f';
-    successMsg.textContent = '✓ Message sent! John will get back to you soon.';
-    setTimeout(() => { successMsg.textContent = ''; }, 5000);
-  }, 1200);
 });
 
 // ─── ACTIVE NAV LINK HIGHLIGHT ───
@@ -115,9 +83,8 @@ const activeObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
       navLinks.forEach(link => {
-        link.style.color = link.getAttribute('href') === '#' + entry.target.id
-          ? 'var(--gold-lite)'
-          : '';
+        const isActive = link.getAttribute('href') === '#' + entry.target.id;
+        link.style.color = isActive ? 'var(--gold-lite)' : '';
       });
     }
   });
